@@ -1,0 +1,59 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  #  current user
+  CURRENTUSER:
+    sh: whoami
+
+  # A given version or default
+  VERSION:
+    sh: echo ${VERSION:-v0.{{.CURRENTUSER}}}
+
+  # Tne current branch
+  BRANCH:
+    sh: git rev-parse --abbrev-ref HEAD
+
+  # Commit Duration - how many days into the past do we want to log commits from
+  COMMITDUR: -21d
+
+  # Development branch
+  DEVBRANCH: development
+
+  # Image name
+  NAME: resourceList
+
+  # Commit log
+  CLOG: |
+    git log \
+    --merges \
+    --first-parent {{.BRANCH}} \
+    --since="$(date -v {{.COMMITDUR}} +%Y-%m-%d)" \
+    --pretty=format:"%<(20,trunc)%aN %<(15)%ad %s" \
+
+tasks:
+  build:
+    desc: "Build resourceList binary (native OS)"
+    silent: true
+    cmds:
+      # Remove the old binary
+      - cmd: rm {{.NAME}}
+        ignore_error: true
+      # Build with jsoniter
+      - cmd: go build -tags=jsoniter -o {{.NAME}}
+      # Append packed files
+        vars: { BINARY: "{{.NAME}}" }
+
+  run:
+    desc: "Run platform"
+    cmds:
+      - task: build
+      - go run ./ run
+
+  psql:
+    desc: "Postgres shell (docker)"
+    silent: true
+    cmds:
+      - cmd: |
+          docker exec -it postgres psql -U obashi -d obashi

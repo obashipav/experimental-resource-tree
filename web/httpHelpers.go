@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"bytes"
@@ -20,8 +20,8 @@ func httpAbortWithMessage(w http.ResponseWriter, message string, status int) {
 func httpResponse(writer http.ResponseWriter, content interface{}, status int) {
 	//write the json to a temporary buffer
 	buffer := bytes.NewBuffer([]byte(""))
-	iter := allowAPI.BorrowStream(buffer)
-	defer allowAPI.ReturnStream(iter)
+	iter := AllowAPI.BorrowStream(buffer)
+	defer AllowAPI.ReturnStream(iter)
 
 	//write
 	iter.WriteVal(content)

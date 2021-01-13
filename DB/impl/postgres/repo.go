@@ -6,8 +6,10 @@ import (
 	"github.com/OBASHITechnology/resourceList/DB/impl/postgres/pathdb"
 	"github.com/OBASHITechnology/resourceList/DB/impl/postgres/repodb"
 	"github.com/OBASHITechnology/resourceList/models"
+	"github.com/OBASHITechnology/resourceList/models/folder"
 	"github.com/OBASHITechnology/resourceList/models/path"
 	"github.com/OBASHITechnology/resourceList/models/repo"
+	"github.com/OBASHITechnology/resourceList/util/shortID"
 	"log"
 )
 
@@ -23,29 +25,21 @@ func (s *store) CreateRepo(request *repo.CreateRequest) (*models.CreateResponse,
 	// first check if the path is valid
 	//  leave the permissions for later
 	var parent *path.GetResponse
-	parent, err = pathdb.GetPathDetails(tx, request.PathURL)
+	parent, err = pathdb.GetPathDetails(tx, request.PreviousURL)
+	if err != nil {
+		return nil, err
+	}
+
+	//request.ID = uuid.NewID()
+	request.PathURI = shortID.NewWithURL(request.PreviousURL)
+	request.HierarchyMap = parent.Hierarchy
+	err = request.AddResource(parent.ResourceID, request.ID, folder.DBTable)
 	if err != nil {
 		return nil, err
 	}
 
 	var response *models.CreateResponse
 	response, err = repodb.Create(tx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	parent.Hierarchy[response.ResourceID] = &path.ResourceInfo{
-		Type:  "repo",
-		Order: parent.Hierarchy[parent.ResourceID].Order + 1,
-	}
-
-	response.URL, err = pathdb.AddResource(tx, &path.CreateRequest{
-		ResourceID:  response.ResourceID,
-		PreviousURL: request.PathURL,
-		Type:        "repo",
-		Hierarchy:   parent.Hierarchy,
-	})
-
 	if err != nil {
 		return nil, err
 	}

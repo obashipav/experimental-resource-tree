@@ -8,6 +8,7 @@ import (
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/path"
 	"github.com/OBASHITechnology/resourceList/models/project"
+	"github.com/OBASHITechnology/resourceList/util/shortID"
 	"log"
 )
 
@@ -23,29 +24,21 @@ func (s *store) CreateProject(request *project.CreateRequest) (*models.CreateRes
 	// first check if the path is valid
 	//  leave the permissions for later
 	var parent *path.GetResponse
-	parent, err = pathdb.GetPathDetails(tx, request.PathURL)
+	parent, err = pathdb.GetPathDetails(tx, request.PreviousURL)
+	if err != nil {
+		return nil, err
+	}
+
+	//request.ID = uuid.NewID()
+	request.PathURI = shortID.NewWithURL(request.PreviousURL)
+	request.HierarchyMap = parent.Hierarchy
+	err = request.AddResource(parent.ResourceID, request.ID, project.DBTable)
 	if err != nil {
 		return nil, err
 	}
 
 	var response *models.CreateResponse
 	response, err = projectdb.Create(tx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	parent.Hierarchy[response.ResourceID] = &path.ResourceInfo{
-		Type:  "project",
-		Order: parent.Hierarchy[parent.ResourceID].Order + 1,
-	}
-
-	response.URL, err = pathdb.AddResource(tx, &path.CreateRequest{
-		ResourceID:  response.ResourceID,
-		PreviousURL: request.PathURL,
-		Type:        "project",
-		Hierarchy:   parent.Hierarchy,
-	})
-
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,7 @@
+# Binaries
+**/resourceList
+**/main
+
+# IDE files
+.idea/
+*.swp

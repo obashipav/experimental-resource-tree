@@ -18,6 +18,7 @@ type (
 		//
 		CreateFolder(request *folder.CreateRequest) (*models.CreateResponse, error)
 		GetFolder(url string) (*folder.GetResponse, error)
+		DeleteFolder(url string, force bool) error
 
 		CreateRepo(request *repo.CreateRequest) (*models.CreateResponse, error)
 		GetRepo(url string) (*repo.GetResponse, error)

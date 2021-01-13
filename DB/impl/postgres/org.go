@@ -7,7 +7,7 @@ import (
 	"github.com/OBASHITechnology/resourceList/DB/impl/postgres/pathdb"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/org"
-	"github.com/OBASHITechnology/resourceList/models/path"
+	"github.com/OBASHITechnology/resourceList/util/shortID"
 	"log"
 )
 
@@ -20,23 +20,31 @@ func (s *store) CreateOrg(request *org.CreateRequest) (*models.CreateResponse, e
 		return nil, err
 	}
 
+	//request.ID = uuid.NewID()
+	request.PathURI = shortID.NewWithURL(request.PreviousURL)
+	request.HierarchyMap = models.HierarchyMap{}
+	err = request.AddResource("", request.ID, org.DBTable)
+	if err != nil {
+		return nil, err
+	}
+
 	var response *models.CreateResponse
 	response, err = orgdb.Create(tx, request)
 	if err != nil {
 		return nil, err
 	}
 
-	response.URL, err = pathdb.AddResource(tx, &path.CreateRequest{
+	/*response.URL, err = pathdb.AddResource(tx, &path.CreateRequest{
 		ResourceID: response.ResourceID,
 		Type:       "org",
-		Hierarchy: path.HierarchyMap{response.ResourceID: &path.ResourceInfo{
+		Hierarchy: path.HierarchyMap{response.ResourceID: &path.HierarchyInfo{
 			Type:  "org",
 			Order: 0,
 		}},
 	})
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	err = tx.Commit(ctx)
 	if err != nil {

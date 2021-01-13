@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <testsuite name="complete e2e Suite" tests="7" failures="2" errors="0" time="0.017">
+      <testcase name="Path using alias and Json content with URL prototype As a normal user who wants to create a root resource named org when I make a valid create request should create the org and return the link" classname="complete e2e Suite" time="0.016352747"></testcase>
+      <testcase name="Path using alias and Json content with URL prototype As a normal user using this org who wants to create folders when I make a valid create request for repo should return the url of the resource" classname="complete e2e Suite" time="0.000293352">
+          <failure type="Failure">/Users/pavlos/go/github.com/OBASHITechnology/resourceList/web/e2e/resources.go:86&#xA;Expected&#xA;    &lt;int&gt;: 404&#xA;to equal&#xA;    &lt;int&gt;: 201&#xA;/Users/pavlos/go/github.com/OBASHITechnology/resourceList/web/e2e/resources.go:94</failure>
+      </testcase>
+      <testcase name="Path using alias and Json content with URL prototype As a normal user using this org who wants to create folders when I make a second create request for repo should return the url of the resource" classname="complete e2e Suite" time="0.000231545">
+          <failure type="Failure">/Users/pavlos/go/github.com/OBASHITechnology/resourceList/web/e2e/resources.go:111&#xA;Expected&#xA;    &lt;int&gt;: 404&#xA;to equal&#xA;    &lt;int&gt;: 201&#xA;/Users/pavlos/go/github.com/OBASHITechnology/resourceList/web/e2e/resources.go:119</failure>
+      </testcase>
+      <testcase name="Path using alias and Json content with URL prototype As a normal user using this org who wants to create projects when I make a valid create request for repo should return the url of the resource" classname="complete e2e Suite" time="8.29e-07"></testcase>
+      <testcase name="Path using alias and Json content with URL prototype As a normal user using this org who wants to create projects when I make a second create request for repo should return the url of the resource" classname="complete e2e Suite" time="4.91e-07"></testcase>
+      <testcase name="Path using alias and Json content with URL prototype As a normal user using this org who wants to create repositories when I make a valid create request for repo should return the url of the resource" classname="complete e2e Suite" time="5.46e-07"></testcase>
+      <testcase name="Path using alias and Json content with URL prototype As a normal user using this org who wants to create repositories when I make a second create request for repo should return the url of the resource" classname="complete e2e Suite" time="5.02e-07"></testcase>
+  </testsuite>

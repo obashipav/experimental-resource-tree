@@ -11,13 +11,14 @@ import (
 	"log"
 )
 
+// Deprecated:
 func AddResource(db common.QueryRower, resource *path.CreateRequest) (string, error) {
-	const query = `insert into demo.respath (path_url, resource_id, type, previous_url, hierarchy) values ($1, $2, $3, $4, $5) on conflict (path_url) do nothing returning path_url;`
+	const query = `insert into demo.respath (path_uri, id, type, previous_uri, hierarchy) values ($1, $2, $3, $4, $5) on conflict (path_uri) do nothing returning path_uri;`
 	var ctx, cancel = context.WithTimeout(context.Background(), common.DEFAULT_REQUEST_TTL)
 	defer cancel()
 
 	// not ready, I need to prepend the URI of the type
-	pathURL := shortID.NewWithURL(resource.Type, fmt.Sprintf(resource.Hierarchy.GetHierarchyAsPath(), resource.ResourceID))
+	pathURL := shortID.NewWithURL(fmt.Sprintf(resource.Hierarchy.GetHierarchyAsPath(), resource.ResourceID))
 
 	var response string
 	err := db.QueryRow(ctx, query, pathURL, resource.ResourceID, resource.Type, resource.PreviousURL, resource.Hierarchy).Scan(&response)
@@ -29,31 +30,32 @@ func AddResource(db common.QueryRower, resource *path.CreateRequest) (string, er
 	return models.GetRealURL(response), nil
 }
 
-func GetNextURLs(db common.Queryer, url string) ([]string, error) {
-	const query = `select path_url from demo.respath where previous_url = $1;`
+func GetNextURLs(db common.Queryer, url string) (models.NextURLs, error) {
+	const query = `select path_uri, label, alt_label, description, owner, updated_by, created_at, updated_at from demo.base where previous_uri = $1 and not deleted;`
 	var ctx, cancel = context.WithTimeout(context.Background(), common.DEFAULT_REQUEST_TTL)
 	defer cancel()
-	var response = make([]string, 0)
+	var response = make(models.NextURLs)
 	rows, err := db.Query(ctx, query, url)
 	if err != nil {
 		log.Println("failed to find the next urls: ", err)
 		return nil, err
 	}
 	for rows.Next() {
-		var next string
-		err = rows.Scan(&next)
+		var next = models.ResourceInfo{}
+		var nextUrl string
+		err = rows.Scan(&nextUrl, &next.Label, &next.AltLabel, &next.Description, &next.Owner, &next.UpdatedBy, &next.CreatedAt, &next.UpdatedAt)
 		if err != nil {
 			log.Println("failed to scan the url: ", err)
 			return nil, err
 		}
-		response = append(response, models.GetRealURL(next))
+		response[models.GetRealURL(nextUrl)] = &next
 	}
 	return response, nil
 }
 
 func GetPathDetails(db common.QueryRower, url string) (*path.GetResponse, error) {
-	const query = `select path_url, resource_id, type, coalesce(previous_url, ''), hierarchy 
-		from only demo.respath where path_url = $1;`
+	const query = `select path_uri, id, type, coalesce(previous_uri, ''), hierarchy 
+		from demo.base where path_uri = $1 and not deleted;`
 	var ctx, cancel = context.WithTimeout(context.Background(), common.DEFAULT_REQUEST_TTL)
 	defer cancel()
 
@@ -61,7 +63,7 @@ func GetPathDetails(db common.QueryRower, url string) (*path.GetResponse, error)
 	err := db.QueryRow(ctx, query, url).Scan(&response.URL, &response.ResourceID, &response.Type,
 		&response.PreviousURL, &response.Hierarchy)
 	if err != nil {
-		log.Println("failed to scan the repo: ", err)
+		log.Println("failed to scan the base table: ", err)
 		return nil, err
 	}
 	// quality check

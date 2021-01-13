@@ -2,16 +2,34 @@ package folder
 
 import "github.com/OBASHITechnology/resourceList/models"
 
+const (
+	// API route
+	APIRoute    = "/folder"
+	// URI query keys
+	DeleteQuery = "kind"
+	// Resource DB table
+	DBTable     = "folder"
+	URIScheme = "folder/"
+	URLParam = "folderId"
+)
+
 type (
 	CreateRequest struct {
-		Label   string `json:"label"`
-		PathURL string `json:"pathURL"`
+		ID      string `json:"-"`
+		PathURI string `json:"-"`
+		models.BaseInfo
 		models.UserAction
+		models.HierarchyMap
 	}
 
 	GetResponse struct {
-		Label   string                 `json:"label"`
 		History models.ResourceHistory `json:"history"`
 		Path    models.CreateResponse  `json:"path"`
+		models.BaseInfo
 	}
 )
+
+func (c *CreateRequest) Valid() {
+	c.BaseInfo.CleanLabels()
+	c.UserAction.AssignOwnerWhenCreating()
+}
