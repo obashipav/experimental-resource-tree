@@ -5,7 +5,6 @@ import (
 	"github.com/OBASHITechnology/resourceList/DB"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/repo"
-	"github.com/go-chi/chi"
 	"net/http"
 )
 
@@ -39,7 +38,8 @@ func createRepo(w http.ResponseWriter, r *http.Request) {
 }
 
 func getRepo(w http.ResponseWriter, r *http.Request) {
-	path := chi.URLParam(r, repo.URLParam)
+	//path := chi.URLParam(r, repo.URLParam)
+	path := models.CleanSlashFromPath(r.URL.Path)
 
 	response, err := DB.Store.GetRepo(path)
 	if err != nil {

@@ -36,7 +36,7 @@ func Registration() *chi.Mux {
 	Engine.Route(org.APIRoute, func(r chi.Router) {
 		r.Post("/", createOrg)
 
-		r.Route(fmt.Sprintf("/{%s}",org.URLParam), func(r chi.Router) {
+		r.Route(fmt.Sprintf("/{%s}", org.URLParam), func(r chi.Router) {
 			// Get self
 			r.Get("/", getOrg)
 			// create a repository
@@ -49,7 +49,7 @@ func Registration() *chi.Mux {
 	})
 
 	Engine.Route(folder.APIRoute, func(r chi.Router) {
-		r.Route(fmt.Sprintf("/{%s}",folder.URLParam), func(r chi.Router) {
+		r.Route(fmt.Sprintf("/{%s}", folder.URLParam), func(r chi.Router) {
 			r.Get("/", getFolder)
 			// create a folder
 			r.Post(folder.APIRoute, createFolder)
@@ -67,7 +67,7 @@ func Registration() *chi.Mux {
 	})
 
 	Engine.Route(project.APIRoute, func(r chi.Router) {
-		r.Route(fmt.Sprintf("/{%s}",project.URLParam), func(r chi.Router) {
+		r.Route(fmt.Sprintf("/{%s}", project.URLParam), func(r chi.Router) {
 			r.Get("/", getProject)
 			// create a folder
 			r.Post(folder.APIRoute, createFolder)
@@ -75,7 +75,7 @@ func Registration() *chi.Mux {
 	})
 
 	Engine.Route(repo.APIRoute, func(r chi.Router) {
-		r.Get(fmt.Sprintf("/{%s}",repo.URLParam), getRepo)
+		r.Get(fmt.Sprintf("/{%s}", repo.URLParam), getRepo)
 	})
 	return Engine
 }

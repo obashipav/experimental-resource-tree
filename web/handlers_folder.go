@@ -5,7 +5,6 @@ import (
 	"github.com/OBASHITechnology/resourceList/DB"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/folder"
-	"github.com/go-chi/chi"
 	"net/http"
 )
 
@@ -39,7 +38,8 @@ func createFolder(w http.ResponseWriter, r *http.Request) {
 }
 
 func getFolder(w http.ResponseWriter, r *http.Request) {
-	path := chi.URLParam(r, folder.URLParam)
+	//path := chi.URLParam(r, folder.URLParam)
+	path := models.CleanSlashFromPath(r.URL.Path)
 
 	response, err := DB.Store.GetFolder(path)
 	if err != nil {

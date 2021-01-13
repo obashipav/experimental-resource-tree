@@ -5,7 +5,6 @@ import (
 	"github.com/OBASHITechnology/resourceList/DB"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/project"
-	"github.com/go-chi/chi"
 	"net/http"
 )
 
@@ -39,7 +38,8 @@ func createProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func getProject(w http.ResponseWriter, r *http.Request) {
-	path := chi.URLParam(r, project.URLParam)
+	//path := chi.URLParam(r, project.URLParam)
+	path := models.CleanSlashFromPath(r.URL.Path)
 
 	response, err := DB.Store.GetProject(path)
 	if err != nil {

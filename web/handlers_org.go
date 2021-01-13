@@ -5,7 +5,6 @@ import (
 	"github.com/OBASHITechnology/resourceList/DB"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/org"
-	"github.com/go-chi/chi"
 	"net/http"
 )
 
@@ -37,8 +36,8 @@ func createOrg(w http.ResponseWriter, r *http.Request) {
 }
 
 func getOrg(w http.ResponseWriter, r *http.Request) {
-	//path := models.CleanSlashFromPath(r.URL.Path)
-	path := chi.URLParam(r, org.URLParam)
+	// path := chi.URLParam(r, org.URLParam)
+	path := models.CleanSlashFromPath(r.URL.Path)
 
 	response, err := DB.Store.GetOrg(path)
 	if err != nil {
