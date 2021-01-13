@@ -4,19 +4,19 @@ import "github.com/OBASHITechnology/resourceList/models"
 
 const (
 	// API route
-	APIRoute    = "/folder"
+	APIRoute = "/folder"
 	// URI query keys
 	DeleteQuery = "kind"
 	// Resource DB table
-	DBTable     = "folder"
-	URIScheme = "folder/"
-	URLParam = "folderId"
+	DBTable   = "folder"
+	URIScheme = "folder"
+	URLParam  = "folderId"
 )
 
 type (
 	CreateRequest struct {
-		ID      string `json:"-"`
-		PathURI string `json:"-"`
+		ID    string `json:"-"`
+		Alias string `json:"-"`
 		models.BaseInfo
 		models.UserAction
 		models.HierarchyMap

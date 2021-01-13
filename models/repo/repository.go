@@ -5,16 +5,16 @@ import (
 )
 
 const (
-	APIRoute = "/repository"
-	DBTable  = "repository"
-	URIScheme = "repository/"
-	URLParam = "repoId"
+	APIRoute  = "/repository"
+	DBTable   = "repository"
+	URIScheme = "repository"
+	URLParam  = "repoId"
 )
 
 type (
 	CreateRequest struct {
-		ID      string `json:"-"`
-		PathURI string `json:"-"`
+		ID    string `json:"-"`
+		Alias string `json:"-"`
 		models.BaseInfo
 		models.UserAction
 		models.HierarchyMap

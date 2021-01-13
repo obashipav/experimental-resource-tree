@@ -3,17 +3,17 @@ package project
 import "github.com/OBASHITechnology/resourceList/models"
 
 const (
-	APIRoute = "/project"
-	DBTable  = "project"
-	URIScheme = "project/"
-	URLParam = "projectId"
+	APIRoute  = "/project"
+	DBTable   = "project"
+	URIScheme = "project"
+	URLParam  = "projectId"
 )
 
 type (
 	CreateRequest struct {
-		ID      string `json:"-"`
-		PathURI string `json:"-"`
-		Color   string `json:"color"`
+		ID    string `json:"-"`
+		Alias string `json:"-"`
+		Color string `json:"color"`
 		models.BaseInfo
 		models.UserAction
 		models.HierarchyMap

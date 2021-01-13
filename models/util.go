@@ -7,9 +7,17 @@ import (
 
 const serverSchema = `http://localhost:8080/%s`
 
-// GetRealURL function prepends the server's http address, in order to form a proper URL.
-func GetRealURL(path string) string {
+// GetRealPath function prepends the server's http address, in order to form a proper URL.
+func GetRealPath(path string) string {
 	return fmt.Sprintf(serverSchema, path)
+}
+
+func GetRealPathWithPrefix(category, alias string) string {
+	return GetRealPath(fmt.Sprintf("%s/%s", category, alias))
+}
+
+func GetRelativePath(category, alias string) string {
+	return fmt.Sprintf("%s/%s", category, alias)
 }
 
 // CleanSlashFromPath function removes any trailing slash from the relative path. This will allow us to

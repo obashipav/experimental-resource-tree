@@ -5,16 +5,16 @@ import (
 )
 
 const (
-	APIRoute = "/org"
-	DBTable  = "org"
-	URIScheme = "org/"
-	URLParam = "orgId"
+	APIRoute  = "/org"
+	DBTable   = "org"
+	URIScheme = "org"
+	URLParam  = "orgId"
 )
 
 type (
 	CreateRequest struct {
-		ID      string `json:"-"`
-		PathURI string `json:"-"`
+		ID    string `json:"-"`
+		Alias string `json:"-"`
 		models.BaseInfo
 		models.UserAction
 		models.HierarchyMap
@@ -30,4 +30,7 @@ type (
 func (c *CreateRequest) Valid() {
 	c.BaseInfo.CleanLabels()
 	c.UserAction.AssignOwnerWhenCreating()
+	if c.HierarchyMap == nil {
+		c.HierarchyMap = make(models.HierarchyMap)
+	}
 }
