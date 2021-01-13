@@ -2,7 +2,6 @@ package repodb
 
 import (
 	"context"
-	"fmt"
 	"github.com/OBASHITechnology/resourceList/DB/impl/postgres/common"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/repo"
@@ -15,12 +14,12 @@ func Create(db common.QueryRower, request *repo.CreateRequest) (*models.CreateRe
 	defer cancel()
 
 	var response string
-	err := db.QueryRow(ctx, query, request.PathURI, request.PreviousURL, repo.DBTable, request.HierarchyMap, request.Label, request.AltLabel, request.Description, request.Owner, request.UpdatedBy).Scan(&response)
+	err := db.QueryRow(ctx, query, request.Alias, request.PreviousURL, repo.DBTable, request.HierarchyMap, request.Label, request.AltLabel, request.Description, request.Owner, request.UpdatedBy).Scan(&response)
 	if err != nil {
 		log.Println("failed to insert into the repo table: ", err)
 		return nil, err
 	}
-	return &models.CreateResponse{ResourceID: response, URL: models.GetRealURL(fmt.Sprintf("%s/%s", repo.URIScheme, request.PathURI)), PreviousURL: models.GetRealURL(request.PreviousURL)}, nil
+	return &models.CreateResponse{ResourceID: response, URL: models.GetRealPath(request.Alias), PreviousURL: models.GetRealPath(request.PreviousURL)}, nil
 }
 
 func Get(db common.QueryRower, url string) (*repo.GetResponse, error) {
@@ -29,13 +28,13 @@ func Get(db common.QueryRower, url string) (*repo.GetResponse, error) {
 		where path_uri = $1 and not deleted;`
 	var ctx, cancel = context.WithTimeout(context.Background(), common.DEFAULT_REQUEST_TTL)
 	defer cancel()
-	var response = &repo.GetResponse{History: models.ResourceHistory{}, Path: models.CreateResponse{URL: models.GetRealURL(fmt.Sprintf("%s%s", repo.URIScheme, url))}}
+	var response = &repo.GetResponse{History: models.ResourceHistory{}, Path: models.CreateResponse{URL: models.GetRealPath(url)}}
 	err := db.QueryRow(ctx, query, url).Scan(&response.Path.PreviousURL, &response.Label, &response.AltLabel, &response.Description, &response.History.Owner,
 		&response.History.UpdatedBy, &response.History.CreatedAt, &response.History.UpdatedAt)
 	if err != nil {
 		log.Println("failed to select the repo", err)
 		return nil, err
 	}
-	response.Path.PreviousURL = models.GetRealURL(response.Path.PreviousURL)
+	response.Path.PreviousURL = models.GetRealPath(response.Path.PreviousURL)
 	return response, err
 }

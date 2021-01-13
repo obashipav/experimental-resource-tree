@@ -30,10 +30,9 @@ func (s *store) CreateFolder(request *folder.CreateRequest) (*models.CreateRespo
 		return nil, err
 	}
 
-	//request.ID = uuid.NewID()
-	request.PathURI = shortID.NewWithURL(request.PreviousURL)
+	request.Alias = models.GetRelativePath(folder.URIScheme, shortID.NewWithURL(request.PreviousURL))
 	request.HierarchyMap = parent.Hierarchy
-	err = request.AddResource(parent.ResourceID, request.ID, folder.DBTable)
+	err = request.AddResource(parent.URL, request.Alias, folder.DBTable)
 	if err != nil {
 		return nil, err
 	}

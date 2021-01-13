@@ -29,10 +29,9 @@ func (s *store) CreateProject(request *project.CreateRequest) (*models.CreateRes
 		return nil, err
 	}
 
-	//request.ID = uuid.NewID()
-	request.PathURI = shortID.NewWithURL(request.PreviousURL)
+	request.Alias = models.GetRelativePath(project.URIScheme, shortID.NewWithURL(request.PreviousURL))
 	request.HierarchyMap = parent.Hierarchy
-	err = request.AddResource(parent.ResourceID, request.ID, project.DBTable)
+	err = request.AddResource(parent.URL, request.Alias, project.DBTable)
 	if err != nil {
 		return nil, err
 	}

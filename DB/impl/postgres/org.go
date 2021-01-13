@@ -20,10 +20,8 @@ func (s *store) CreateOrg(request *org.CreateRequest) (*models.CreateResponse, e
 		return nil, err
 	}
 
-	//request.ID = uuid.NewID()
-	request.PathURI = shortID.NewWithURL(request.PreviousURL)
-	request.HierarchyMap = models.HierarchyMap{}
-	err = request.AddResource("", request.ID, org.DBTable)
+	request.Alias = models.GetRelativePath(org.URIScheme, shortID.NewWithURL(request.PreviousURL))
+	err = request.AddResource("", request.Alias, org.DBTable)
 	if err != nil {
 		return nil, err
 	}
@@ -33,18 +31,6 @@ func (s *store) CreateOrg(request *org.CreateRequest) (*models.CreateResponse, e
 	if err != nil {
 		return nil, err
 	}
-
-	/*response.URL, err = pathdb.AddResource(tx, &path.CreateRequest{
-		ResourceID: response.ResourceID,
-		Type:       "org",
-		Hierarchy: path.HierarchyMap{response.ResourceID: &path.HierarchyInfo{
-			Type:  "org",
-			Order: 0,
-		}},
-	})
-	if err != nil {
-		return nil, err
-	}*/
 
 	err = tx.Commit(ctx)
 	if err != nil {
