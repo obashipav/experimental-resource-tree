@@ -16,7 +16,8 @@ type (
 		Color string `json:"color"`
 		models.BaseInfo
 		models.UserAction
-		models.HierarchyMap
+		// mainly used internally
+		Hierarchy models.Hierarchy `json:"-"`
 	}
 
 	GetResponse struct {

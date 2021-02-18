@@ -31,8 +31,8 @@ func (s *store) CreateRepo(request *repo.CreateRequest) (*models.CreateResponse,
 
 	//request.ID = uuid.NewID()
 	request.Alias = models.GetRelativePath(repo.URIScheme, shortID.NewWithURL(request.PreviousURL))
-	request.HierarchyMap = parent.Hierarchy
-	err = request.AddResource(parent.URL, request.Alias, repo.DBTable)
+	request.Hierarchy = parent.Hierarchy
+	err = request.Hierarchy.AddResource(parent.URL, request.Alias)
 	if err != nil {
 		return nil, err
 	}

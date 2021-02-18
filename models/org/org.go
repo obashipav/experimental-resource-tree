@@ -17,7 +17,8 @@ type (
 		Alias string `json:"-"`
 		models.BaseInfo
 		models.UserAction
-		models.HierarchyMap
+		// mainly used internally.
+		Hierarchy models.Hierarchy `json:"-"`
 	}
 
 	GetResponse struct {
@@ -30,7 +31,7 @@ type (
 func (c *CreateRequest) Valid() {
 	c.BaseInfo.CleanLabels()
 	c.UserAction.AssignOwnerWhenCreating()
-	if c.HierarchyMap == nil {
-		c.HierarchyMap = make(models.HierarchyMap)
+	if c.Hierarchy.List == nil {
+		c.Hierarchy.List = make([]string,0)
 	}
 }

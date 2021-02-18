@@ -30,8 +30,8 @@ func (s *store) CreateProject(request *project.CreateRequest) (*models.CreateRes
 	}
 
 	request.Alias = models.GetRelativePath(project.URIScheme, shortID.NewWithURL(request.PreviousURL))
-	request.HierarchyMap = parent.Hierarchy
-	err = request.AddResource(parent.URL, request.Alias, project.DBTable)
+	request.Hierarchy = parent.Hierarchy
+	err = request.Hierarchy.AddResource(parent.URL, request.Alias)
 	if err != nil {
 		return nil, err
 	}

@@ -31,8 +31,8 @@ func (s *store) CreateFolder(request *folder.CreateRequest) (*models.CreateRespo
 	}
 
 	request.Alias = models.GetRelativePath(folder.URIScheme, shortID.NewWithURL(request.PreviousURL))
-	request.HierarchyMap = parent.Hierarchy
-	err = request.AddResource(parent.URL, request.Alias, folder.DBTable)
+	request.Hierarchy = parent.Hierarchy
+	err = request.Hierarchy.AddResource(parent.URL, request.Alias)
 	if err != nil {
 		return nil, err
 	}
@@ -97,12 +97,17 @@ func (s *store) DeleteFolder(url string, force bool) error {
 	if err != nil {
 		return err
 	}
+
 	resource.NextURLs, err = pathdb.GetNextURLs(tx, url)
 	if err != nil {
 		return err
 	}
 
 	// delete the Resource
+	err = folderdb.Delete(tx, url)
+	if err != nil {
+		return err
+	}
 
 	err = tx.Commit(ctx)
 	if err != nil {

@@ -2,6 +2,7 @@ package folderdb
 
 import (
 	"context"
+	"errors"
 	"github.com/OBASHITechnology/resourceList/DB/impl/postgres/common"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/folder"
@@ -9,12 +10,12 @@ import (
 )
 
 func Create(db common.QueryRower, request *folder.CreateRequest) (*models.CreateResponse, error) {
-	const query = `insert into demo.folder (path_uri, previous_uri, type, hierarchy, label, alt_label, description, owner, updated_by) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id;`
+	const query = `insert into demo.folder (path_uri, previous_uri, type, hierarchy, hlevel, label, alt_label, description, owner, updated_by) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id;`
 	var ctx, cancel = context.WithTimeout(context.Background(), common.DEFAULT_REQUEST_TTL)
 	defer cancel()
 
 	var response string
-	err := db.QueryRow(ctx, query, request.Alias, request.PreviousURL, folder.DBTable, request.HierarchyMap, request.Label, request.AltLabel, request.Description, request.Owner, request.UpdatedBy).Scan(&response)
+	err := db.QueryRow(ctx, query, request.Alias, request.PreviousURL, folder.DBTable, request.Hierarchy.List, len(request.Hierarchy.List), request.Label, request.AltLabel, request.Description, request.Owner, request.UpdatedBy).Scan(&response)
 	if err != nil {
 		log.Println("failed to insert into the folder table: ", err)
 		return nil, err
@@ -39,4 +40,18 @@ func Get(db common.QueryRower, url string) (*folder.GetResponse, error) {
 	return response, err
 }
 
-func Delete(db common.Execer, url string) {}
+func Delete(db common.Execer, url string) error {
+	const query = `update demo.folder set deleted = true where uri = $1;`
+	var ctx, cancel = context.WithTimeout(context.Background(), common.DEFAULT_REQUEST_TTL)
+	defer cancel()
+	tag, err := db.Exec(ctx, query, url)
+	if err != nil {
+		log.Println("failed to delete the folder: ", err)
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		log.Println("nothing has been deleted, url: ", url)
+		return errors.New("not found")
+	}
+	return nil
+}

@@ -3,6 +3,23 @@
 The prototype intends to improve the usability of the old matpath and of course improve how we keep resources to the V1
 path.
 
+## API endpoint design
+
+Like every prototype we will try to list every endpoint which is going to be used and also will add value to our API.
+
+HTTP Method | URI | Description
+--- | --- | ---
+GET | /activity | Will return the latest user activity paginated, with default sort by time.
+POST | /org | Will create a new resource of type `org` and will return the full URL
+GET | /org/{resourceId} | Returns the resource data and other links as full URLs
+UPDATE | /org/{resourceId} | Will update the resource data
+DELETE | /org/{resourceId} | Will close the organisation and EVERYTHING within, (*snapped-fingers sound in the background)
+GET | /orgs | Get a list of all the connected organisations sorted by latest visited as default and paginated, of course it will support query parameters for search
+
+
+
+
+
 ## Resource path is the old `matpath`
 
 This document will focus on the technical side, and we will start from the postgres model.
@@ -12,14 +29,47 @@ This document will focus on the technical side, and we will start from the postg
 Let's start with the resource path model.
 
 ```postgresql
-create table respath
+--  Table Definitions
+CREATE TABLE base
 (
-    path_uri     varchar primary key,
-    resource_id  uuid not null, -- links to the resource
-    type         varchar,
+    id           uuid    not null primary key default gen_random_uuid(),
+    path_uri     varchar not null,
     previous_uri varchar,
-    hierarchy    jsonb
+    type         varchar not null,
+    hierarchy    varchar[],
+    hlevel       int,
+    label        varchar,
+    alt_label    varchar,
+    description  varchar,
+    tsearch      tsvector generated always as ( label_and_desc_tsearch(label, description) ) stored,
+    owner        varchar not null,
+    updated_by   varchar,
+    created_at   bigint default nownano(CURRENT_TIMESTAMP),
+    updated_at   bigint default nownano(CURRENT_TIMESTAMP),
+    deleted      bool default false,
+    constraint pathing unique (path_uri, label, type)
 );
+
+CREATE TABLE org
+(
+    LIKE base including all
+) inherits (base);
+
+CREATE TABLE repository
+(
+    LIKE base including all
+) inherits (base);
+
+CREATE TABLE folder
+(
+    LIKE base including all
+) INHERITS (base);
+
+CREATE TABLE project
+(
+    LIKE base including all,
+    colour varchar
+) INHERITS (base);
 ```
 
 #### Primary key Path URL
@@ -42,36 +92,14 @@ difference from just making a short uuid from `New()`.
 
 The Hierarchy field has the following format
 
-```json
-{
-  "resource_id": {
-    "type": "<the intention is to target the resource table>",
-    "order": "<This is a Integer and keeps the order of the path>"
-  }
-}
+```
+{'org/{alias ID}', '{resource_uri}/{resource alias ID}'}
 ```
 
 For example
 
-```json
-{
-  "2a09b2ad-4a18-4c3c-80db-f1af819d379b": {
-    "type": "project",
-    "order": 3
-  },
-  "6d72b499-6e16-420a-9f12-753207c1586e": {
-    "type": "folder",
-    "order": 2
-  },
-  "be07b199-6517-4e89-9c12-026f2a0f2523": {
-    "type": "folder",
-    "order": 1
-  },
-  "e140b44d-81f9-493b-a44e-8d9ada42f842": {
-    "type": "org",
-    "order": 0
-  }
-}
+```
+{'org/mBrhw3qwivJPVuyZUdw6fd', 'repo/UPDpVhNhnWrNLNujxmsz8S'}
 ```
 
 ## API new contract style
@@ -85,7 +113,7 @@ server address using the config file.
 For example, let us assume the following HTTP request
 (_for simplicity we will not require a JWT token and of course skip permissions_) :
 
-`GET | ` http://localhost:8080/org/mBrhw3qwivJPVuyZUdw6fd
+`GET |  http://localhost:8080/org/mBrhw3qwivJPVuyZUdw6fd`
 
 ```json
 {

@@ -17,7 +17,8 @@ type (
 		Alias string `json:"-"`
 		models.BaseInfo
 		models.UserAction
-		models.HierarchyMap
+		// mainly used internally
+		Hierarchy models.Hierarchy `json:"-"`
 	}
 
 	GetResponse struct {

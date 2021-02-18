@@ -9,12 +9,12 @@ import (
 )
 
 func Create(db common.QueryRower, request *project.CreateRequest) (*models.CreateResponse, error) {
-	const query = `insert into demo.project (path_uri, previous_uri, type, hierarchy, label, alt_label, description, color, owner, updated_by) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id;`
+	const query = `insert into demo.project (path_uri, previous_uri, type, hierarchy, hlevel, label, alt_label, description, color, owner, updated_by) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id;`
 	var ctx, cancel = context.WithTimeout(context.Background(), common.DEFAULT_REQUEST_TTL)
 	defer cancel()
 
 	var response string
-	err := db.QueryRow(ctx, query, request.Alias, request.PreviousURL, project.DBTable, request.HierarchyMap, request.Label, request.AltLabel, request.Description, request.Color, request.Owner, request.UpdatedBy).Scan(&response)
+	err := db.QueryRow(ctx, query, request.Alias, request.PreviousURL, project.DBTable, request.Hierarchy.List, len(request.Hierarchy.List), request.Label, request.AltLabel, request.Description, request.Color, request.Owner, request.UpdatedBy).Scan(&response)
 	if err != nil {
 		log.Println("failed to insert into the project table: ", err)
 		return nil, err

@@ -9,5 +9,5 @@ import (
 //  which will append it to the resource path URL. The above format define an internal path of a resource.
 //  One example can be {org ID} / {repository ID} or {org ID} / {project ID} etc.
 func NewWithURL(name string) string {
-	return shortuuid.NewWithNamespace(name)
+	return shortuuid.New()
 }

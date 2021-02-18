@@ -40,13 +40,13 @@ func GetPathDetails(db common.QueryRower, url string) (*path.GetResponse, error)
 
 	var response = &path.GetResponse{}
 	err := db.QueryRow(ctx, query, url).Scan(&response.URL, &response.ResourceID, &response.Type,
-		&response.PreviousURL, &response.Hierarchy)
+		&response.PreviousURL, &response.Hierarchy.List)
 	if err != nil {
 		log.Println("failed to scan the base table: ", err)
 		return nil, err
 	}
 	// quality check
-	if _, exists := response.Hierarchy[response.URL]; !exists || len(response.Hierarchy) == 0 {
+	if len(response.Hierarchy.List) == 0  && response.Hierarchy.List[len(response.Hierarchy.List)-1] == response.URL   {
 		log.Println("failed to resolve the hierarchy path", response)
 		return nil, errors.New("failed to return the hierarchy")
 	}

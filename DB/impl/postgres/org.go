@@ -21,7 +21,7 @@ func (s *store) CreateOrg(request *org.CreateRequest) (*models.CreateResponse, e
 	}
 
 	request.Alias = models.GetRelativePath(org.URIScheme, shortID.NewWithURL(request.PreviousURL))
-	err = request.AddResource("", request.Alias, org.DBTable)
+	err = request.Hierarchy.AddResource("", request.Alias)
 	if err != nil {
 		return nil, err
 	}

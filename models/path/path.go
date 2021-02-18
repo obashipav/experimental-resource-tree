@@ -13,7 +13,7 @@ type (
 		ResourceID  string              `json:"-"`           // the resource id as a uuid.
 		Type        string              `json:"type"`        // points to the resource table
 		PreviousURL string              `json:"previousURL"` // parent path as a URL link
-		Hierarchy   models.HierarchyMap `json:"hierarchy"`
+		Hierarchy   models.Hierarchy `json:"hierarchy"`
 	}
 
 	GetResponse struct {
@@ -21,7 +21,7 @@ type (
 		URL         string              `json:"selfURL"`
 		Type        string              `json:"type"`
 		PreviousURL string              `json:"previousURL"`
-		Hierarchy   models.HierarchyMap `json:"hierarchy"`
+		Hierarchy   models.Hierarchy `json:"hierarchy"`
 		models.NextURLs
 	}
 )

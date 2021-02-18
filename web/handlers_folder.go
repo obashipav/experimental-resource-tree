@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/OBASHITechnology/resourceList/DB"
 	"github.com/OBASHITechnology/resourceList/models"
 	"github.com/OBASHITechnology/resourceList/models/folder"
@@ -50,6 +51,14 @@ func getFolder(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteFolder(w http.ResponseWriter, r *http.Request) {
-	//path := models.CleanSlashFromPath(r.URL.Path)
-	//kind := r.URL.Query().Get(folder.DeleteQuery)
+	path := models.CleanSlashFromPath(r.URL.Path)
+
+	err := DB.Store.DeleteFolder(path, false)
+	if err != nil {
+		if errors.Is(err, errors.New("not found")) {
+			httpAbortWithMessage(w, "the resource doesn't exist", http.StatusNotFound)
+			return
+		}
+	}
+	httpResponse(w, []byte(""), http.StatusOK)
 }
